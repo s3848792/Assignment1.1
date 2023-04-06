@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <h1>{% block title %} Register {% endblock %}</h1>
+
+  <form class="user-form" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" placeholder="username..." value="{{ request.form['username'] }}"><br><br>
+    <label for="email">Email:</label>
+    <input type="test" id="email" name="email" placeholder="email..." value="{{ request.form['email'] }}"><br><br>
+    <label for="password">Password:</label>
+    <input type="text" id="password" name="password" placeholder="password..." value="{{ request.form['password'] }}"><br><br>
+    <input type="submit" value="Submit">
+  </form>
+</div>
+{% endblock %}

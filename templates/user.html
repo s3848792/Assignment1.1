@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if session['username'] %}
+<h1>Welcome {{ session['username'] }}!</h1>
+<div class="container">
+    {% for song in music %}
+<div class="row align-items-start">
+    <div class="col">
+        <p>{{ song['title'] }}</p>
+    </div>
+    <div class="col">
+        <p>{{ song['artist'] }}</p>
+    </div>
+    <div class="col">
+        <p>{{ song['year'] }}</p>
+    </div>
+    <div class="col">
+        <form method="post">
+            <input type="submit" value="Unsubscribe">
+        </form>
+    </div>
+</div>
+{% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}
+
+
