@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="title">{% block title %} Search {% endblock %}</h1>
+    <div class="container" style="Padding-bottom: 20px">
+        <form method="get">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title"><br><br>
+            <label for="artist">Artist:</label>
+            <input type="text" id="artist" name="artist"><br><br>
+            <label for="year">Year:</label>
+            <input type="text" id="year" name="year"><br><br>
+            <input type="submit" value="Search">
+        </form>
+    </div>
+    <div class="container">
+    <table>
+        <tr>
+          <th>Title</th>
+          <th>Artist</th>
+          <th>Year</th>
+          <th>Image</th>
+          <th>Button</th>
+        </tr>
+        {% for song in music %}
+        <tr>
+            <td>{{ song['title'] }}</td>
+            <td>{{ song['artist'] }}</td>
+            <td>{{ song['year'] }}</td>
+          <td><img src="{{ song['img_url'] }}" style="width: 100px"></td>
+          <td><form method="post">
+            <input type="hidden" id="song" name="song" value="{{ song['title'] }}">
+            <input type="hidden" id="user" name="user" value="{{ session['username'] }}">
+            <input type="submit" value="Subscribe">
+        </form></td>
+        </tr>
+        {% endfor %}
+      </table>
+      </div>
+{% endblock %}

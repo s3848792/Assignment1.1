@@ -1,13 +1,19 @@
 import boto3 
+from s3_functions import show_image
 import datetime
 from boto3.dynamodb.conditions import Attr, Key
 from botocore.exceptions import ClientError
-from dbus import ValidationException 
 
 from flask import Flask, render_template, request, url_for, flash, redirect, session
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '3bUXIGVBPsfA3UsqbOk/E8LSazhUDAdxzWTB0c5k'
+AWS_ACCESS="AKIAWG5XCPIOBQ765M43"
+AWS_SECRET="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"
+BUCKET_NAME='s3848792assignment1'
+dynamodb=boto3.resource('dynamodb',region_name='ap-southeast-2', aws_access_key_id=AWS_ACCESS, aws_secret_access_key= AWS_SECRET)
+s3 = boto3.client('s3')
+
 
 
 @app.route('/')
@@ -17,14 +23,13 @@ def root():
 @app.route('/user', methods=('GET', 'POST'))
 def user():
     if request.method==('POST'):
-        dynamodb=boto3.resource('dynamodb',region_name='ap-southeast-2', aws_access_key_id='AKIAWG5XCPIOBQ765M43', aws_secret_access_key= '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')
-        song=request.form('title')
+        song = request.form['song']
+        user = request.form['user']
         subscriptions = dynamodb.Table('Subscriptions')
-        subscriptions.delete_item(Key={'title': song})
-        return redirect(url('user'))
+        subscriptions.delete_item(Key={'User': user, 'Song': song})
+        return redirect(url_for('user'))
 
 
-    dynamodb=boto3.resource('dynamodb',region_name='ap-southeast-2', aws_access_key_id='AKIAWG5XCPIOBQ765M43', aws_secret_access_key= '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')
     subscriptions = dynamodb.Table('Subscriptions')
     music = dynamodb.Table('Music')
     subResponse = subscriptions.query(KeyConditionExpression=Key('User').eq(session['username']))
@@ -39,6 +44,32 @@ def user():
         return render_template('user.html', music=musResponse['Items'])
     else:
         return render_template('user.html', music=[])
+    
+
+
+
+@app.route('/search', methods=('GET', 'POST'))
+def search():
+
+    if request.method==('POST'):
+        song = request.form['song']
+        user = request.form['user']
+        subscriptions = dynamodb.Table('Subscriptions')
+        subscriptions.put_item( Item={'User': user,'Song': song})
+        return redirect(url_for('user'))
+
+    music = dynamodb.Table('Music')
+    subscriptions = dynamodb.Table('Subscriptions')
+    musResponse = music.scan()
+    subResponse = subscriptions.query(KeyConditionExpression=Key('User').eq(session['username']))
+    subSongs=[]
+    if len(subResponse) > 0:
+        for item in subResponse['Items']:
+            subSongs.append(item['Song'])
+        finalList = [x for x in musResponse['Items'] if not (subSongs.count(x['title'])>0)]
+    contents = show_image(BUCKET_NAME, finalList)
+    return render_template('search.html', music=finalList)
+
 
 
 
@@ -50,7 +81,6 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        dynamodb=boto3.resource('dynamodb', region_name='ap-southeast-2', aws_access_key_id='AKIAWG5XCPIOBQ765M43', aws_secret_access_key= '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')
         table = dynamodb.Table('login')
         response = table.scan(FilterExpression=Attr('username').eq(username) and Attr('password').eq(password) )
         data = response['Items']
@@ -70,7 +100,6 @@ def register():
         username = request.form['username']
         password = request.form['password']
         email=request.form['email']
-        dynamodb=boto3.resource('dynamodb',region_name='ap-southeast-2', aws_access_key_id='AKIAWG5XCPIOBQ765M43', aws_secret_access_key= '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')
         table = dynamodb.Table('login')
         if not username or not password or not email:
             flash("Fields are required!")

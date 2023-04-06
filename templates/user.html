@@ -18,6 +18,8 @@
     </div>
     <div class="col">
         <form method="post">
+            <input type="hidden" id="song" name="song" value="{{ song['title'] }}">
+            <input type="hidden" id="user" name="user" value="{{ session['username'] }}">
             <input type="submit" value="Unsubscribe">
         </form>
     </div>
