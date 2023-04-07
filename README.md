@@ -13,9 +13,13 @@ The website is hosted on my personal AWS account.
 The DynamoDB database, S3 storage, and EC2 instance are all a part of my personal account. 
 The website can be run locally through the home directory as
 >python3 Assignment1.py
+
 The production website can be found through the Public IPV4 DNS:
+
 http://ec2-3-26-13-233.ap-southeast-2.compute.amazonaws.com
+
 or IP:
+
 3.26.13.233
 
 The EC2 instance is hosted in the ap-southeast-2 region
