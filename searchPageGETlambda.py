@@ -2,6 +2,11 @@ import json
 import boto3
 from boto3.dynamodb.conditions import Attr, Key
 dynamodb = boto3.resource('dynamodb')
+
+# handler method to retrieve searchj page music.
+# scans for songs matching query values, and removes songs already subscribed to
+# returns HTTP response, list in the body
+
 def lambda_handler(event, context):
     
     music = dynamodb.Table('Music')

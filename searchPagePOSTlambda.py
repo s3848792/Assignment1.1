@@ -1,7 +1,9 @@
-import json
 import boto3
-from boto3.dynamodb.conditions import Attr, Key
 dynamodb = boto3.resource('dynamodb')
+
+# Method to create new subscription in DDB table
+# Creates based on current user, and song picked
+# returns copy of the event.
 def lambda_handler(event, context):
         
         subscriptions = dynamodb.Table('Subscriptions')
