@@ -4,6 +4,11 @@ from botocore.exceptions import ClientError
 import requests
 from pathlib import Path
 
+# method to upload images to specific S3 bucket, based on URLs from Music Table
+# input: Music Table
+# output: none
+# results in the images uploaded to database
+# fails if user not permitted, or images already uploaded.
 
 def printImages(table):
     response = table.scan()
@@ -21,9 +26,6 @@ def printImages(table):
             logging.error(e)
             return False
         return True
-
-
-
 
     while 'LastEvaluatedKey' in response:
         response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])

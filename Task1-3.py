@@ -2,6 +2,10 @@ from decimal import Decimal
 import json
 import boto3
 
+# method to create a Music table with set keys/attributes
+# input: List of Song items (Dictionaries), parsed from JSON file, database to upload to
+# output: none
+# results in the Music uploaded to the 'Music' Table
 
 def load_music(songs, dynamodb=None):
     if not dynamodb:

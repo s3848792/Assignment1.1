@@ -1,10 +1,10 @@
-import boto3 
+import datetime, json, boto3
+import requests
 from s3_functions import show_image
-import datetime
 from boto3.dynamodb.conditions import Attr, Key
 from botocore.exceptions import ClientError
 
-from flask import Flask, render_template, request, url_for, flash, redirect, session
+from flask import Flask, render_template, request, url_for, flash, redirect, session, jsonify
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '3bUXIGVBPsfA3UsqbOk/E8LSazhUDAdxzWTB0c5k'
@@ -13,6 +13,9 @@ AWS_SECRET="3bUXIGVBPsfA3UsqbOk/E8LSazhUDAdxzWTB0c5k"
 BUCKET_NAME='s3848792assignment1'
 dynamodb=boto3.resource('dynamodb',region_name='ap-southeast-2', aws_access_key_id=AWS_ACCESS, aws_secret_access_key= AWS_SECRET)
 s3 = boto3.client('s3')
+
+MUSIC_SEARCH_URL='https://sqenqvobeb.execute-api.ap-southeast-2.amazonaws.com/test/music'
+MUSIC_SUBSCRIBE_URL='https://sqenqvobeb.execute-api.ap-southeast-2.amazonaws.com/test/music'
 
 
 
@@ -29,7 +32,8 @@ def user():
         subscriptions.delete_item(Key={'User': user, 'Song': song})
         return redirect(url_for('user'))
 
-
+    if not session:
+        return redirect(url_for('login'))
     subscriptions = dynamodb.Table('Subscriptions')
     music = dynamodb.Table('Music')
     subResponse = subscriptions.query(KeyConditionExpression=Key('User').eq(session['username']))
@@ -53,29 +57,19 @@ def user():
 def search():
 
     if request.method==('POST'):
-        song = request.form['song']
-        user = request.form['user']
-        subscriptions = dynamodb.Table('Subscriptions')
-        subscriptions.put_item( Item={'User': user,'Song': song})
+        post_response=requests.post(MUSIC_SEARCH_URL, data = { 'user':request.form['user'], 'song': request.form['song']}, json={ 'user:':request.form['user'], 'song': request.form['user']})
+        post_response_json = post_response.json()
+        print(post_response_json)
         return redirect(url_for('user'))
     
     if request.method==('GET'):
-        music = dynamodb.Table('Music')
-        subscriptions = dynamodb.Table('Subscriptions')
-        musResponse = music.scan(FilterExpression=Attr('title').contains(request.args.get('title')) & Attr('artist').contains(request.args.get('artist')) & Attr('year').contains(request.args.get('year')))
-        if not request.args:
-            musResponse = music.scan()
-        if len(musResponse['Items']) < 1:
-            flash("No result is retrieved. Please query again.")
-            musResponse = music.scan()
-        subResponse = subscriptions.query(KeyConditionExpression=Key('User').eq(session['username']))
-        subSongs=[]
-        if len(subResponse) > 0:
-            for item in subResponse['Items']:
-                subSongs.append(item['Song'])
-            finalList = [x for x in musResponse['Items'] if not (subSongs.count(x['title'])>0)]
-        show_image(BUCKET_NAME, finalList)
-        return render_template('search.html', music=finalList)
+        if not session:
+            return redirect(url_for('login'))
+        music = requests.get(MUSIC_SEARCH_URL, params = { 'title':request.args.get('title'), 'artist': request.args.get('artist'), 'year':request.args.get('year'), 'username': session['username']}).json()['body']
+        if len(music) < 1:
+            flash("No result is retrieved. You may already have subscribed to the song! Please query again.")
+        show_image(BUCKET_NAME, music)
+        return render_template('search.html', music=music)
 
 
 
@@ -129,6 +123,7 @@ def register():
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)

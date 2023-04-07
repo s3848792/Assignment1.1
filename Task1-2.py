@@ -1,5 +1,12 @@
 import boto3
 
+
+# method to create a Music table with set keys/attributes
+# input: none
+# output none
+# results in the Music Table used by the website
+
+
 def create_music_table(dynamodb=None):
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
@@ -35,4 +42,3 @@ def create_music_table(dynamodb=None):
 
 if __name__ == '__main__':
     movie_table = create_music_table()
-    print("Table status:", movie_table.table_status)
