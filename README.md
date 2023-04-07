@@ -36,6 +36,12 @@ The api gateway is a simple REST API built as instructed in the labs, further de
 
 ## Miscellaneous
 
+Example of a user Account:
+
+>USER: WilliamFurler1   
+>EMAIL: s38487921@student.rmit.edu.au   
+>PASSWORD: 123456   
+
 The production website can be found through the Public IPV4 DNS:
 
 http://ec2-3-26-13-233.ap-southeast-2.compute.amazonaws.com
