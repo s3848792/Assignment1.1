@@ -4,8 +4,11 @@ Description of task locations
 
 Task 1.1 was completed through the AWS dashboard, and is used for the project
 Tasks 1.2, 1.3, and 2 can be found in the appropriate files, and run locally in the home directory through the commands:
+
 >python3 task1-2.py
+
 >python3 task1-3.py
+
 >python3 task2.py
 
 
