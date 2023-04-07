@@ -4,28 +4,31 @@
 
 {% if session['username'] %}
 <h1>Welcome {{ session['username'] }}!</h1>
+<h2>Here are your subscribed songs:</h2>
 <div class="container">
-    {% for song in music %}
-<div class="row align-items-start">
-    <div class="col">
-        <p>{{ song['title'] }}</p>
-    </div>
-    <div class="col">
-        <p>{{ song['artist'] }}</p>
-    </div>
-    <div class="col">
-        <p>{{ song['year'] }}</p>
-    </div>
-    <div class="col">
-        <form method="post">
+    <table>
+        <tr>
+          <th>Title</th>
+          <th>Artist</th>
+          <th>Year</th>
+          <th>Image</th>
+          <th>Button</th>
+        </tr>
+        {% for song in music %}
+        <tr>
+            <td>{{ song['title'] }}</td>
+            <td>{{ song['artist'] }}</td>
+            <td>{{ song['year'] }}</td>
+          <td><img src="{{ song['img_url'] }}" style="width: 100px"></td>
+          <td><form method="post">
             <input type="hidden" id="song" name="song" value="{{ song['title'] }}">
             <input type="hidden" id="user" name="user" value="{{ session['username'] }}">
             <input type="submit" value="Unsubscribe">
-        </form>
-    </div>
-</div>
-{% endfor %}
-</div>
+        </form></td>
+        </tr>
+        {% endfor %}
+      </table>
+      </div>
 {% endif %}
 
 {% endblock %}

@@ -41,6 +41,7 @@ def user():
         musResponse = music.scan(
             FilterExpression=Attr('title').is_in(songList)
             )
+        show_image(BUCKET_NAME, musResponse['Items'])
         return render_template('user.html', music=musResponse['Items'])
     else:
         return render_template('user.html', music=[])
@@ -57,18 +58,24 @@ def search():
         subscriptions = dynamodb.Table('Subscriptions')
         subscriptions.put_item( Item={'User': user,'Song': song})
         return redirect(url_for('user'))
-
-    music = dynamodb.Table('Music')
-    subscriptions = dynamodb.Table('Subscriptions')
-    musResponse = music.scan()
-    subResponse = subscriptions.query(KeyConditionExpression=Key('User').eq(session['username']))
-    subSongs=[]
-    if len(subResponse) > 0:
-        for item in subResponse['Items']:
-            subSongs.append(item['Song'])
-        finalList = [x for x in musResponse['Items'] if not (subSongs.count(x['title'])>0)]
-    contents = show_image(BUCKET_NAME, finalList)
-    return render_template('search.html', music=finalList)
+    
+    if request.method==('GET'):
+        music = dynamodb.Table('Music')
+        subscriptions = dynamodb.Table('Subscriptions')
+        musResponse = music.scan(FilterExpression=Attr('title').contains(request.args.get('title')) & Attr('artist').contains(request.args.get('artist')) & Attr('year').contains(request.args.get('year')))
+        if not request.args:
+            musResponse = music.scan()
+        if len(musResponse['Items']) < 1:
+            flash("No result is retrieved. Please query again.")
+            musResponse = music.scan()
+        subResponse = subscriptions.query(KeyConditionExpression=Key('User').eq(session['username']))
+        subSongs=[]
+        if len(subResponse) > 0:
+            for item in subResponse['Items']:
+                subSongs.append(item['Song'])
+            finalList = [x for x in musResponse['Items'] if not (subSongs.count(x['title'])>0)]
+        show_image(BUCKET_NAME, finalList)
+        return render_template('search.html', music=finalList)
 
 
 
@@ -82,7 +89,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         table = dynamodb.Table('login')
-        response = table.scan(FilterExpression=Attr('username').eq(username) and Attr('password').eq(password) )
+        response = table.scan(FilterExpression=Attr('username').eq(username) & Attr('password').eq(password) )
         data = response['Items']
         if len(data) == 0 or data[0]["username"] != username or data[0]["password"] != password:
             flash("Incorrect Username/Password!")
